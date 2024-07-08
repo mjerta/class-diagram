@@ -3,14 +3,15 @@
 title: TechItEasy
 ---
 classDiagram
-class Product {
-name: String
-brand: String
-type: String
-price: Double
-getDetails(): String
-updateDetails(details: String): void
-}
+    direction RL
+    class Product {
+        - name: String
+        - brand: String
+        - type: String
+        - price: Double
+        + Procuct(name, brand, type, price)
+        + applyDiscount(double discountPercentage): void
+    }
 
     class TV {
         screenType: String
@@ -20,110 +21,127 @@ updateDetails(details: String): void
         smartTV: Boolean
         voiceControl: Boolean
         hdr: Boolean
-        getTVDetails(): String
-        updateTVDetails(details: String): void
+        -isCompatibleWith List~Product~
+        +TV(TVBuilder builder)
     }
 
+    class TVBuilder {
+        -screenType String
+        -size String
+        -screenQuality String
+        -wifi Boolean
+        -smartTV Boolean
+        -voiceControl Boolean
+        -hdr Boolean
+        -isCompatibleWith List~Product~
+        +TVBuilder setScreenType(String screenType)
+        +TVBuilder setSize(String size)
+        +TVBuilder setScreenQuality(String screenQuality)
+        +TVBuilder setWifi(Boolean wifi)
+        +TVBuilder setSmartTV(Boolean smartTV)
+        +TVBuilder setVoiceControl(Boolean voiceControl)
+        +TVBuilder setHDR(Boolean hdr)
+        +TV build()
+    }
     class Remote {
-        batteryType: String
-        smartRemote: Boolean
-        getRemoteDetails(): String
-        updateRemoteDetails(details: String): void
+        -batteryType: String
+        -smartRemote: Boolean
+        -isCompatibleWith List~TV~
+        +Remote(String provider, String encoding, List~TV~ isCompatibleWith)
     }
 
     class WallMount {
-        size: String
-        attachmentMethod: String
-        getMountDetails(): String
-        updateMountDetails(details: String): void
+        -size: String
+        -attachmentMethod: String
+        -isCompatibleWith List~TV~
+        +WallMount(String provider, String encoding, List~TV~ isCompatibleWith)
     }
 
     class CIModule {
-        provider: String
-        encoding: String
-        getCIModuleDetails(): String
-        updateCIModuleDetails(details: String): void
+        -provider: String
+        -encoding: String
+        -isCompatibleWith List~TV~
+        +CIModule(String provider, String encoding, List~TV~ isCompatibleWith)
     }
 
-
-    
-
     class User {
-        userName: String
-        password: String
-        name: String
-        address: String
-        function: String
-        payScale: String
-        vacationDays: int
-        login(userName: String, password: String): boolean
-        getUserDetails(): String
-        updateUserDetails(details: String): void
+        -name: String
+        -address: String
+        -function: String
+        -payScale: String
+        -vacationDays: int
+        +User(String name, String address, String function, String payScale, int, vacationDays)
+    }
+
+    class Login {
+        +authenticateLogin(String username, String Password): User
     }
 
     class UserRole {
-        nameOfRole: String
-        rights: List<String>
-        getRights(role: String): List<String>
-        setRights(role: String, rights: List<String>): void
+        -nameOfRole: String
+        -rights: List~String~
+        +UserRole(String nameOfRole, List<String> Rights)
     }
 
     class Document {
-        documentID: String
-        date: Date
-        status: String
+        -documentID: String
+        -date: Date
+        -status: String
+        +Document(String documentID, Date date)
     }
 
     class Order {
-        extends Document
-        User user
-        List<Product> products
-        paid: Boolean
-        paymentDate: Date
-        + getOrderDetails(): String
-        + updateOrderStatus(status: String): void
+        -User user
+        -products List<Product>
+        -paid: Boolean
+        -paymentDate: Date
+        +Order(User user, List~Product~ product, Boolean paid)
+    }
+    
+    class PurchaseOrder {
+        -User user
+        -products List<Product>
+        -paid: Boolean
+        +PurchaseOrder(User user, List~Product~ product, Boolean paid)
     }
 
     class OrderHistory {
-    
-        List~Orders~ orders
+        -orders List~Orders~
+        +addOrder(Order order): void
     }
-
     class PurchaseHistory {
-        List~PurchaseOrder~ purchaseOrder
-
-    }
-
-
-    class PurchaseOrder {
-        User user
-        List<Product> products
-        + getPurchaseOrderDetails(): String
-        + updatePurchaseOrderStatus(status: String): void
+        -purchaseOrder List~PurchaseOrder~
+        +addPurchaseOrder(PurchaseOrder order): void
     }
 
     class WMS {
-        product
-        totalQty
-        list~Location~ locations
+        -product
+        -totalQty
+        -locations List~Location~
+        +WMS(List~Location~ locations)
+        +addLocation(Location location): void
     }
 
     class Location {
-        - String product
-        - int qty
+        -product String
+        -qty int
     }
 
-Product <|-- TV
-Product <|-- Remote
-Product <|-- WallMount
-Product <|-- CIModule
-Document <|-- PurchaseOrder
-Document <|-- Order
-User <--UserRole
-PurchaseHistory "1" *-- "0..*" PurchaseOrder
-OrderHistory "1" *-- "0..*" Order
-
-Order "1" o-- "0..*" Product
-PurchaseOrder "1" o-- "0..*" Product
-WMS "1" o-- "0..*" Location
+    TV <-- TVBuilder
+    Product <|-- TV
+    Product <|-- WallMount
+    Product <|-- Remote
+    Product <|-- CIModule
+    Document <|-- PurchaseOrder
+    Document <|-- Order
+    Login --> User
+    User "1" -- "1" UserRole
+    Order "1" --o "1" User
+    PurchaseOrder "1" --o "1" User
+    Product "1" *-- "1..*" Order
+    Product "1..*" *-- "1" PurchaseOrder
+    PurchaseOrder "0..*" -- "1" PurchaseHistory
+    Order "0..*" -- "1" OrderHistory
+    WMS "1" --> "0..*" Product
+    WMS "1" --o "1..*" Location
 ```
